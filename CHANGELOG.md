@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed the problem of errors that satisfy the net.Error interface but aren't actually from the net package getting picked up.
+- Fixed the problem of an error from os.Stat satisfying the net.Error interface.
 
 ## [0.0.1] - 2020-11-23
 
