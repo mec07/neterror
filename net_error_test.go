@@ -16,8 +16,7 @@ import (
 
 func TestGetNetError(t *testing.T) {
 	// The error from os.Stat for a non-existent file satisfies the
-	// net.Error interface. There are potentially other error types that
-	// also satisfy the net.Error interface.
+	// net.Error interface.
 	_, err := os.Stat("non-existent-file")
 
 	var invalidAddrErr *net.InvalidAddrError
@@ -63,7 +62,7 @@ func TestGetNetError(t *testing.T) {
 			shouldSucceed: true,
 		},
 		{
-			name:          "k error",
+			name:          "random error",
 			err:           errors.New("hello world"),
 			shouldSucceed: false,
 		},
@@ -106,10 +105,12 @@ func ExampleGetNetError() {
 	netError, ok := neterror.GetNetError(err)
 	if !ok {
 		fmt.Println("Expected a net.Error")
+		return
 	}
 
 	if netError.Temporary() && netError.Timeout() {
 		fmt.Println("Temporary Timeout error")
+		return
 	}
 	// Output: Temporary Timeout error
 }

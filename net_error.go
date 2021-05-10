@@ -3,6 +3,7 @@ package neterror
 import (
 	"errors"
 	"net"
+	"syscall"
 )
 
 // GetNetError recursively checks the chain of errors until it finds an error
@@ -12,19 +13,20 @@ import (
 func GetNetError(err error) (net.Error, bool) {
 	for {
 		if err == nil {
-			break
+			return nil, false
 		}
 
-		// As there are errors that are not from the net package that
-		// satisfy the net.Error interface, we need to explicitly ensure
-		// that the error does indeed come from the net package.
-		switch netError := err.(type) {
-		case *net.DNSConfigError, *net.DNSError, *net.AddrError, *net.InvalidAddrError, *net.OpError, *net.UnknownNetworkError:
-			return netError.(net.Error), true
+		// Ignore syscall.Errno errors, which weirdly enough satisfy the
+		// net.Error interface
+		switch err.(type) {
+		case syscall.Errno, *syscall.Errno:
+			return nil, false
+		}
+
+		if netError, ok := err.(net.Error); ok {
+			return netError, true
 		}
 
 		err = errors.Unwrap(err)
 	}
-
-	return nil, false
 }
