@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -14,6 +15,13 @@ import (
 )
 
 func TestGetNetError(t *testing.T) {
+	// The error from os.Stat for a non-existent file satisfies the
+	// net.Error interface. There are potentially other error types that
+	// also satisfy the net.Error interface.
+	_, err := os.Stat("non-existent-file")
+
+	var invalidAddrErr *net.InvalidAddrError
+	var unknownNetworkError *net.UnknownNetworkError
 	table := []struct {
 		name          string
 		err           error
@@ -30,13 +38,43 @@ func TestGetNetError(t *testing.T) {
 			shouldSucceed: true,
 		},
 		{
-			name:          "not a network error",
+			name:          "DNS config error",
+			err:           &net.DNSConfigError{},
+			shouldSucceed: true,
+		},
+		{
+			name:          "Address error",
+			err:           &net.AddrError{},
+			shouldSucceed: true,
+		},
+		{
+			name:          "Invalid address error",
+			err:           invalidAddrErr,
+			shouldSucceed: true,
+		},
+		{
+			name:          "Operation error",
+			err:           &net.OpError{},
+			shouldSucceed: true,
+		},
+		{
+			name:          "Unknown network error",
+			err:           unknownNetworkError,
+			shouldSucceed: true,
+		},
+		{
+			name:          "k error",
 			err:           errors.New("hello world"),
 			shouldSucceed: false,
 		},
 		{
 			name:          "nil error",
 			err:           nil,
+			shouldSucceed: false,
+		},
+		{
+			name:          "os.PathError",
+			err:           err,
 			shouldSucceed: false,
 		},
 	}
