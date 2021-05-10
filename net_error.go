@@ -15,9 +15,9 @@ func GetNetError(err error) (net.Error, bool) {
 			break
 		}
 
-		// As there are errors that are not from the net package
-		// that satisfy the net.Error interface, we need to explicitly
-		// ensure that the error does indeed come from the net package.
+		// As there are errors that are not from the net package that
+		// satisfy the net.Error interface, we need to explicitly ensure
+		// that the error does indeed come from the net package.
 		switch netError := err.(type) {
 		case *net.DNSConfigError, *net.DNSError, *net.AddrError, *net.InvalidAddrError, *net.OpError, *net.UnknownNetworkError:
 			return netError.(net.Error), true
